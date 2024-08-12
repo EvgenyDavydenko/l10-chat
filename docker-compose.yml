@@ -1,0 +1,56 @@
+version: "3"
+
+services:
+    php82cli:
+        build: ./docker/
+        container_name: laravel-php82cli-bookworm
+        restart: always
+        ports:
+            - 8080:8000
+        links:
+            - database
+        volumes:
+            - ./:/var/www/html
+        tty: true
+        # command: php artisan serve --host php82cli
+    database:
+        image: mariadb:11.3.2-jammy
+        container_name: mariadb-jammy
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: root_pass
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: phpmyadmin
+            MYSQL_PASSWORD: phpmyadmin
+        # MYSQL LOG
+        # SET global log_output = 'FILE';
+        # SET global general_log = 'ON';
+        # SET global general_log = 'OFF';
+    phpmyadmin:
+        image: phpmyadmin:5.2.1-apache
+        container_name: phpmyadmin-apache
+        restart: always
+        links:
+            - database
+        ports:
+            - 8084:80
+        environment:
+            PMA_HOST: database
+            PMA_USER: phpmyadmin
+            PMA_PASSWORD: phpmyadmin
+    redis:
+        image: redis:7.4.0-bookworm
+        container_name: redis-bookworm
+        ports:
+            - 6379:6379
+    websockets:
+        container_name: laravel-echo-server
+        image: oanhnn/laravel-echo-server
+        restart: unless-stopped
+        volumes:
+            - ./docker/websockets/:/app/
+        depends_on:
+            - redis
+        ports:
+            - 6001:6001
+        # docker compose logs -tf -n 50 websockets
