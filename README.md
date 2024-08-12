@@ -4,3 +4,4 @@
 ```
 composer create-project laravel/laravel:^10.0 l10-chat
 ```
+2. Create chat
